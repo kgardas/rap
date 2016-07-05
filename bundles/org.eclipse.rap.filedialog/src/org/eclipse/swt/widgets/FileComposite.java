@@ -22,6 +22,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.rap.fileupload.DiskFileUploadReceiver;
 import org.eclipse.rap.fileupload.FileUploadHandler;
 import org.eclipse.rap.rwt.client.ClientFile;
@@ -94,6 +95,8 @@ public class FileComposite extends Composite {
 
   private int returnCode;
 
+  private WizardPage wizardPage;
+
   /**
    * Constructs a new instance of this class given only its parent.
    *
@@ -123,6 +126,10 @@ public class FileComposite extends Composite {
   public String getFileName() {
     String[] fileNames = getFileNames();
     return fileNames.length == 0 ? "" : fileNames[ 0 ];
+  }
+
+  public void setWizardPage(WizardPage page) {
+    wizardPage = page;
   }
 
   /**
@@ -521,13 +528,35 @@ public class FileComposite extends Composite {
 
     @Override
     protected void beforeExecute( Thread thread, Runnable runnable ) {
-      setButtonEnabled( false );
+//      setButtonEnabled( false );
+      setReturnCode(SWT.CANCEL);
+      if (!isDisposed()) {
+        display.asyncExec( new Runnable() {
+          @Override
+          public void run() {
+            if (wizardPage != null) {
+              wizardPage.setPageComplete( false );
+            }
+          }
+        });
+      }
     }
 
     @Override
     protected void afterExecute( Runnable runnable, Throwable throwable ) {
       if( getQueue().size() == 0 ) {
-        setButtonEnabled( true );
+        setReturnCode(SWT.OK);
+        //setButtonEnabled( true );
+        if (!isDisposed()) {
+          display.asyncExec( new Runnable() {
+            @Override
+            public void run() {
+              if (wizardPage != null) {
+                wizardPage.setPageComplete( true );
+              }
+            }
+          });
+        }
       }
     }
 
