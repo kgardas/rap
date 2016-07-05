@@ -14,7 +14,6 @@ package org.eclipse.swt.widgets;
 
 import static org.eclipse.swt.internal.widgets.LayoutUtil.createButtonLayoutData;
 import static org.eclipse.swt.internal.widgets.LayoutUtil.createFillData;
-import static org.eclipse.swt.internal.widgets.LayoutUtil.createGridLayout;
 import static org.eclipse.swt.internal.widgets.LayoutUtil.createHorizontalFillData;
 
 import java.io.File;
@@ -24,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.layout.LayoutConstants;
+import org.eclipse.jface.util.Geometry;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.rap.fileupload.DiskFileUploadReceiver;
 import org.eclipse.rap.fileupload.FileUploadHandler;
@@ -254,8 +255,11 @@ public class FileComposite extends Composite {
 
   private void createDialogArea( Composite parent ) {
     Composite dialogArea = new Composite( parent, SWT.NONE );
-    dialogArea.setLayoutData( createFillData() );
-    dialogArea.setLayout( createGridLayout( 1, 0, 5 ) );
+    //dialogArea.setLayoutData( createFillData() );
+    //dialogArea.setLayout( createGridLayout( 1, 0, 5 ) );
+    GridLayoutFactory.fillDefaults().numColumns(1).applyTo(dialogArea);
+    GridDataFactory.fillDefaults().grab(true, true).hint(150, 150).applyTo(dialogArea);
+
     createUploadsArea( dialogArea );
     createProgressArea( dialogArea );
     createDropTarget( dialogArea );
@@ -336,10 +340,13 @@ public class FileComposite extends Composite {
 
   private void createButtonsArea( Composite parent ) {
     Composite buttonsArea = new Composite( parent, SWT.NONE );
-    buttonsArea.setLayout( createGridLayout( 4, 0, 5 ) );
-    buttonsArea.setLayoutData( createHorizontalFillData() );
+    //buttonsArea.setLayout( createGridLayout( 4, 0, 5 ) );
+    //buttonsArea.setLayoutData( createHorizontalFillData() );
+    GridLayoutFactory.fillDefaults().numColumns(1).applyTo(buttonsArea);
+    GridDataFactory.fillDefaults().grab(false, true).hint(150, 150).applyTo(buttonsArea);
     String text = isMulti() ? SWT.getMessage( "SWT_Add" ) : SWT.getMessage( "SWT_Browse" );
     createFileUpload( buttonsArea, text );
+    //createFileUpload( parent, text );
     /*
     createSpacer( buttonsArea );
     okButton = createButton( buttonsArea, SWT.getMessage( "SWT_OK" ) );
@@ -364,7 +371,11 @@ public class FileComposite extends Composite {
   protected FileUpload createFileUpload( Composite parent, String text ) {
     FileUpload fileUpload = new FileUpload( parent, isMulti() ? SWT.MULTI : SWT.NONE );
     fileUpload.setText( text );
-    fileUpload.setLayoutData( createButtonLayoutData( fileUpload ) );
+    //fileUpload.setLayoutData( createButtonLayoutData( fileUpload ) );
+    Point preferredSize = fileUpload.computeSize(SWT.DEFAULT, SWT.DEFAULT, false);
+    Point hint = Geometry.max(LayoutConstants.getMinButtonSize(), preferredSize);
+    GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).hint(hint).applyTo(fileUpload);
+
     fileUpload.addListener( SWT.Selection, new Listener() {
       @Override
       public void handleEvent( Event event ) {
