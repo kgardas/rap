@@ -22,6 +22,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.rap.fileupload.DiskFileUploadReceiver;
 import org.eclipse.rap.fileupload.FileUploadHandler;
@@ -115,6 +117,11 @@ public class FileComposite extends Composite {
     super( parent, style);
     pushSession = new ServerPushSession();
     display = Display.getDefault();
+    this.open();
+
+    GridLayoutFactory.fillDefaults().numColumns(2).applyTo(this);
+    GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
+
   }
 
   /**
@@ -232,7 +239,7 @@ public class FileComposite extends Composite {
     int locationY = ( displaySize.height - prefSize.y ) / 2 + displaySize.y;
     //shell.setBounds( locationX, locationY, prefSize.x, prefSize.y );
     // set spacer real layout data after shell prefer size calculation
-    spacer.setLayoutData( createHorizontalFillData() );
+    //spacer.setLayoutData( createHorizontalFillData() );
   }
 
   private void initializeDefaults() {
@@ -241,8 +248,8 @@ public class FileComposite extends Composite {
 
   private void createControls() {
     //shell.setLayout( createGridLayout( 1, 10, 10 ) );
-    createDialogArea( this.getParent() );
-    createButtonsArea( this.getParent() );
+    createDialogArea( this );
+    createButtonsArea( this );
   }
 
   private void createDialogArea( Composite parent ) {
@@ -333,6 +340,7 @@ public class FileComposite extends Composite {
     buttonsArea.setLayoutData( createHorizontalFillData() );
     String text = isMulti() ? SWT.getMessage( "SWT_Add" ) : SWT.getMessage( "SWT_Browse" );
     createFileUpload( buttonsArea, text );
+    /*
     createSpacer( buttonsArea );
     okButton = createButton( buttonsArea, SWT.getMessage( "SWT_OK" ) );
     parent.getShell().setDefaultButton( okButton );
@@ -350,6 +358,7 @@ public class FileComposite extends Composite {
         cancelPressed();
       }
     } );
+    */
   }
 
   protected FileUpload createFileUpload( Composite parent, String text ) {
@@ -435,7 +444,7 @@ public class FileComposite extends Composite {
       control.setVisible( false );
     }
   }
-
+/*
   private void setButtonEnabled( final boolean enabled ) {
     if( !isDisposed() ) {
       display.asyncExec( new Runnable() {
@@ -448,7 +457,7 @@ public class FileComposite extends Composite {
       } );
     }
   }
-
+*/
   private void okPressed() {
     setReturnCode( SWT.OK );
     close();
