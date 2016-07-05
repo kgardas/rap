@@ -90,8 +90,6 @@ public class FileComposite extends Composite {
   private ThreadPoolExecutor singleThreadExecutor;
   private final Display display;
   private ScrolledComposite uploadsScroller;
-  private Button okButton;
-  private Label spacer;
   private UploadPanel placeHolder;
   private ProgressCollector progressCollector;
   private ClientFile[] clientFiles;
@@ -119,10 +117,8 @@ public class FileComposite extends Composite {
     pushSession = new ServerPushSession();
     display = Display.getDefault();
     this.open();
-
     GridLayoutFactory.fillDefaults().numColumns(2).applyTo(this);
     GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
-
   }
 
   /**
@@ -176,39 +172,12 @@ public class FileComposite extends Composite {
     clientFiles = files;
   }
 
-  /**
-   * Makes the dialog visible and brings it to the front
-   * of the display.
-   *
-   * <!-- Begin RAP specific -->
-   * <p><strong>RAP Note:</strong> This method is not supported when running the application in
-   * JEE_COMPATIBILITY mode. Use <code>Dialog#open(DialogCallback)</code> instead.</p>
-   * <!-- End RAP specific -->
-   *
-   * @return a string describing the absolute path of the first selected file,
-   *         or null if the dialog was cancelled or an error occurred
-   *
-   * @exception SWTException <ul>
-   *    <li>ERROR_WIDGET_DISPOSED - if the dialog has been disposed</li>
-   *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the dialog</li>
-   * </ul>
-   */
-  /*
-  public String open() {
-    //checkOperationMode();
-    prepareOpen();
-    //runEventLoop( shell );
-    return returnCode == SWT.OK ? getFileName() : null;
-  }
-*/
   public void open() {
     this.prepareOpen();
   }
 
   protected void prepareOpen() {
-    //createShell();
     createControls();
-    initializeBounds();
     initializeDefaults();
     pushSession.start();
     singleThreadExecutor = createSingleThreadExecutor();
@@ -216,50 +185,20 @@ public class FileComposite extends Composite {
       handleFileDrop( clientFiles );
     }
   }
-/*
-  private void createShell() {
-    shell = new Shell( getParent(), getStyle() );
-    shell.setText( getText() );
-    shell.addDisposeListener( new DisposeListener() {
-      @Override
-      public void widgetDisposed( DisposeEvent event ) {
-        cleanup();
-      }
-    } );
-    display = shell.getDisplay();
-  }
-*/
-  private void initializeBounds() {
-    Point prefSize = this.computeSize( SWT.DEFAULT, SWT.DEFAULT );
-    if( isMulti() ) {
-      prefSize.y += 165; // ensure space for five files
-    }
-    //this.setMinimumSize( prefSize );
-    Rectangle displaySize = getParent().getDisplay().getBounds();
-    int locationX = ( displaySize.width - prefSize.x ) / 2 + displaySize.x;
-    int locationY = ( displaySize.height - prefSize.y ) / 2 + displaySize.y;
-    //shell.setBounds( locationX, locationY, prefSize.x, prefSize.y );
-    // set spacer real layout data after shell prefer size calculation
-    //spacer.setLayoutData( createHorizontalFillData() );
-  }
 
   private void initializeDefaults() {
     setReturnCode( SWT.CANCEL );
   }
 
   private void createControls() {
-    //shell.setLayout( createGridLayout( 1, 10, 10 ) );
     createDialogArea( this );
     createButtonsArea( this );
   }
 
   private void createDialogArea( Composite parent ) {
     Composite dialogArea = new Composite( parent, SWT.NONE );
-    //dialogArea.setLayoutData( createFillData() );
-    //dialogArea.setLayout( createGridLayout( 1, 0, 5 ) );
     GridLayoutFactory.fillDefaults().numColumns(1).applyTo(dialogArea);
     GridDataFactory.fillDefaults().grab(true, true).hint(150, 150).applyTo(dialogArea);
-
     createUploadsArea( dialogArea );
     createProgressArea( dialogArea );
     createDropTarget( dialogArea );
@@ -340,38 +279,15 @@ public class FileComposite extends Composite {
 
   private void createButtonsArea( Composite parent ) {
     Composite buttonsArea = new Composite( parent, SWT.NONE );
-    //buttonsArea.setLayout( createGridLayout( 4, 0, 5 ) );
-    //buttonsArea.setLayoutData( createHorizontalFillData() );
     GridLayoutFactory.fillDefaults().numColumns(1).applyTo(buttonsArea);
     GridDataFactory.fillDefaults().grab(false, true).hint(150, 150).applyTo(buttonsArea);
     String text = isMulti() ? SWT.getMessage( "SWT_Add" ) : SWT.getMessage( "SWT_Browse" );
     createFileUpload( buttonsArea, text );
-    //createFileUpload( parent, text );
-    /*
-    createSpacer( buttonsArea );
-    okButton = createButton( buttonsArea, SWT.getMessage( "SWT_OK" ) );
-    parent.getShell().setDefaultButton( okButton );
-    okButton.forceFocus();
-    okButton.addListener( SWT.Selection, new Listener() {
-      @Override
-      public void handleEvent( Event event ) {
-        okPressed();
-      }
-    } );
-    Button cancelButton = createButton( buttonsArea, SWT.getMessage( "SWT_Cancel" ) );
-    cancelButton.addListener( SWT.Selection, new Listener() {
-      @Override
-      public void handleEvent( Event event ) {
-        cancelPressed();
-      }
-    } );
-    */
   }
 
   protected FileUpload createFileUpload( Composite parent, String text ) {
     FileUpload fileUpload = new FileUpload( parent, isMulti() ? SWT.MULTI : SWT.NONE );
     fileUpload.setText( text );
-    //fileUpload.setLayoutData( createButtonLayoutData( fileUpload ) );
     Point preferredSize = fileUpload.computeSize(SWT.DEFAULT, SWT.DEFAULT, false);
     Point hint = Geometry.max(LayoutConstants.getMinButtonSize(), preferredSize);
     GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).hint(hint).applyTo(fileUpload);
@@ -384,11 +300,6 @@ public class FileComposite extends Composite {
     } );
     fileUpload.moveAbove( null );
     return fileUpload;
-  }
-
-  private void createSpacer( Composite buttonArea ) {
-    spacer = new Label( buttonArea, SWT.NONE );
-    spacer.setLayoutData( createButtonLayoutData( spacer ) );
   }
 
   protected Button createButton( Composite parent, String text ) {
@@ -455,29 +366,6 @@ public class FileComposite extends Composite {
       control.setVisible( false );
     }
   }
-/*
-  private void setButtonEnabled( final boolean enabled ) {
-    if( !isDisposed() ) {
-      display.asyncExec( new Runnable() {
-        @Override
-        public void run() {
-          if( !okButton.isDisposed() ) {
-            okButton.setEnabled( enabled );
-          }
-        }
-      } );
-    }
-  }
-*/
-  private void okPressed() {
-    setReturnCode( SWT.OK );
-    close();
-  }
-
-  private void cancelPressed() {
-    setReturnCode( SWT.CANCEL );
-    close();
-  }
 
   private void setReturnCode( int code ) {
     returnCode = code;
@@ -485,10 +373,6 @@ public class FileComposite extends Composite {
 
   private boolean isMulti() {
     return ( getStyle() & SWT.MULTI ) != 0;
-  }
-
-  private void close() {
-    //shell.close();
   }
 
   private void cleanup() {
@@ -548,7 +432,6 @@ public class FileComposite extends Composite {
 
     @Override
     protected void beforeExecute( Thread thread, Runnable runnable ) {
-//      setButtonEnabled( false );
       setReturnCode(SWT.CANCEL);
       if (!isDisposed()) {
         display.asyncExec( new Runnable() {
@@ -566,7 +449,6 @@ public class FileComposite extends Composite {
     protected void afterExecute( Runnable runnable, Throwable throwable ) {
       if( getQueue().size() == 0 ) {
         setReturnCode(SWT.OK);
-        //setButtonEnabled( true );
         if (!isDisposed()) {
           display.asyncExec( new Runnable() {
             @Override
