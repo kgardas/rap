@@ -132,6 +132,12 @@ public class FileComposite extends Composite {
     return fileNames.length == 0 ? "" : fileNames[ 0 ];
   }
 
+  /**
+   * Sets reference of the parent Wizard page. In case of uploaded files it
+   * then allows to notify Wizard page by calling its setPageComplete method
+   *
+   * @param page is parent wizard page
+   */
   public void setWizardPage(WizardPage page) {
     wizardPage = page;
   }
